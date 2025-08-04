@@ -3,17 +3,13 @@ const axios = require('axios');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Sua API Key do OpenWeatherMap
+// Configurações
 const API_KEY = '7c0625a54e2a4ae770cfc158e3c0e8f0';
-const CIDADE = 'Tatuape,BR'; // BR = Brasil
+const CIDADE = 'Sao Paulo,BR';
 
 app.get('/', async (req, res) => {
   const dataAtual = new Date();
   const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
-  const horaFormatada = dataAtual.toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
 
   let tempo = 'Tempo indisponível';
 
@@ -23,6 +19,7 @@ app.get('/', async (req, res) => {
     const temperatura = Math.round(resposta.data.main.temp);
     tempo = `${clima}, ${temperatura}°C`;
   } catch (erro) {
+    tempo = `Erro ao obter tempo: ${erro.message}`;
     console.error('Erro ao obter o tempo:', erro.message);
   }
 
@@ -32,7 +29,7 @@ app.get('/', async (req, res) => {
         <title>Painel Tatuapé</title>
         <style>
           body {
-            background-color: #87CEEB; /* azul céu */
+            background-color: #87CEEB;
             color: #000;
             font-family: Arial, sans-serif;
             font-weight: bold;
@@ -48,13 +45,23 @@ app.get('/', async (req, res) => {
       </head>
       <body>
         <div>${dataFormatada}</div>
-        <div>${horaFormatada}</div>
-        <div>Tempo no Tatuapé: ${tempo}</div>
+        <div id="hora">Carregando hora...</div>
+        <div>Tempo em São Paulo: ${tempo}</div>
+
+        <script>
+          function atualizarHora() {
+            const agora = new Date();
+            const opcoes = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('hora').textContent = agora.toLocaleTimeString('pt-BR', opcoes);
+          }
+          atualizarHora();
+          setInterval(atualizarHora, 1000);
+        </script>
       </body>
     </html>
   `);
 });
 
 app.listen(port, () => {
-  console.log(`API rodando em http://localhost:${port}`);
+  console.log(\`API rodando em http://localhost:\${port}\`);
 });
